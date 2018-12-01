@@ -70,12 +70,14 @@ void dispose_tree(Node **first)
 
 ErrorCode read_numbers(int **numbers, int *count)
 {
-    FILE *f = fopen("input.txt", "rb");
+    ErrorCode error = ERR_NONE;
+    FILE *f = NULL;
     int size = 128;
 
     assert(numbers != NULL);
     assert(*numbers == NULL);
 
+    f = fopen("input.txt", "rb");
     if (f == NULL)
         return ERR_FILE;
 
@@ -90,7 +92,10 @@ ErrorCode read_numbers(int **numbers, int *count)
             break;
 
         if (read != 1)
-            return ERR_FILE;
+        {
+            error = ERR_FILE;
+            break;
+        }
 
         (*numbers)[*count] = num;
 
@@ -101,16 +106,29 @@ ErrorCode read_numbers(int **numbers, int *count)
             *numbers = realloc(*numbers, sizeof(Element) * size);
 
             if (*numbers == NULL)
-                return ERR_MEM;
+            {
+                error = ERR_MEM;
+                break;
+            }
         }
     } while (1);
 
-    *numbers = realloc(*numbers, sizeof(Element) * (*count));
+    fclose(f);
 
-    if (*numbers == NULL)
-        return ERR_MEM;
+    if (error)
+    {
+        if (*numbers)
+            free(*numbers);
+    }
+    else
+    {
+        *numbers = realloc(*numbers, sizeof(Element) * (*count));
 
-    return ERR_NONE;
+        if (*numbers == NULL)
+            return ERR_MEM;
+    }
+
+    return error;
 }
 
 int handle_error(ErrorCode error)
@@ -118,12 +136,17 @@ int handle_error(ErrorCode error)
     switch (error)
     {
     case ERR_NONE:
+        fprintf(stderr, "%s\n", "Error: Did not find a duplicated entry.");
+
         return 1;
+
     case ERR_ALREADY:
         return 0;
+
     case ERR_FILE:
         fprintf(stderr, "%s\n", "Error: Could not open or read file, or it was in an incorrect format.");
         break;
+
     case ERR_MEM:
         fprintf(stderr, "%s\n", "Error: Not enough memory available.");
         break;

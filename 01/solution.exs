@@ -12,17 +12,15 @@ defmodule Solution do
     |> stream_numbers()
     |> Stream.cycle()
     |> Enum.reduce_while(
-      {0, 0, MapSet.new()},
+      {0, MapSet.new()},
       fn
-        cur, {n, acc, map} ->
+        cur, {acc, map} ->
           new_acc = acc + cur
 
-          if new_acc == 55250 do IO.puts("found #{n}") end
-
           if map |> MapSet.member?(new_acc) do
-            {:halt, {n + 1, new_acc}}
+            {:halt, new_acc}
           else
-            {:cont, {n + 1, new_acc, map |> MapSet.put(new_acc)}}
+            {:cont, {new_acc, map |> MapSet.put(new_acc)}}
           end
       end
     )

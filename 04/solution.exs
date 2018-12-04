@@ -7,22 +7,6 @@ defmodule Solution do
     |> reduce_events()
   end
 
-  # 101262
-  def solve1(file \\ "input.txt") do
-    file
-    |> solve()
-    |> Enum.max_by(fn {_guard, {minutes, _map}} -> minutes end)
-    |> case do
-      {guard, {_minutes, map}} ->
-        highest =
-          map
-          |> Enum.max_by(fn {_minute, count} -> count end)
-          |> elem(0)
-
-        guard * highest
-    end
-  end
-
   defp map_events(event) do
     Regex.run(
       ~r/\[(\d+)-(\d+)-(\d+) (\d+):(\d+)\] (?:Guard #(\d+)|falls (asleep)|wakes (up))/,
@@ -86,6 +70,22 @@ defmodule Solution do
   end
 
   defp get_span(state, rest), do: {state, rest}
+
+  # 101262
+  def solve1(file \\ "input.txt") do
+    file
+    |> solve()
+    |> Enum.max_by(fn {_guard, {minutes, _map}} -> minutes end)
+    |> case do
+      {guard, {_minutes, map}} ->
+        highest =
+          map
+          |> Enum.max_by(fn {_minute, count} -> count end)
+          |> elem(0)
+
+        guard * highest
+    end
+  end
 
   # 71976
   def solve2(file \\ "input.txt") do
